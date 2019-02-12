@@ -1,3 +1,4 @@
+import numpy.core.multiarray
 from tkinter import *
 import image as im
 import constant as c
@@ -88,7 +89,8 @@ class GUI:
             ('Chỉ Chọn B',1),
             ('Chọn A và B xen kẽ',2),
             ('AA - BB',3),
-            #('Ngẫu Nhiên',4)
+            ('AA - B',4),
+            ('BB - A',5)
             ]
         self.rdbType = dict()
         self.var = IntVar(None,0)
@@ -97,7 +99,7 @@ class GUI:
             rdb_x = 50
             self.rdbType[index] = Radiobutton(frame,text=text,variable=self.var,value=index)
             self.rdbType[index].place(x=rdb_x,y=rdb_y)
-            rdb_y += 25
+            rdb_y += 22
         #</RadioButton 1>
         #</Group 1>
 
@@ -310,12 +312,14 @@ class GUI:
                 getMoneySuccess = True
                 if(moneyPrvGame != 0 and moneyPrvGame>moneyInGame):
                     isLosingStreak=True
+                else:
+                    isLosingStreak = False
 
                 if isLosingStreak == True:
                     moneyBetting = moneyBetting*2
                 else:
                     moneyBetting = self.vm.get()
-                    isLosingStreak = False
+
 
                 moneyPrvGame = moneyInGame
             except:
@@ -382,7 +386,37 @@ class GUI:
 
     def action_Mode5(self):
         if(self.var.get() == 4):
-            return 'mode 5'
+            global isBet
+            global moneyBetting
+            global changeMode
+            global duplicateMode
+            if isBet == True:
+                if changeMode == True:
+                    ctr.betMode2(moneyBetting)
+                else:
+                    ctr.betMode1(moneyBetting)
+                    if duplicateMode == True:
+                        changeMode = not changeMode
+                duplicateMode = not duplicateMode
+                changeMode = not changeMode
+                isBet = False
+
+    def action_Mode6(self):
+        if(self.var.get() == 5):
+            global isBet
+            global moneyBetting
+            global changeMode
+            global duplicateMode
+            if isBet == True:
+                if changeMode == True:
+                    ctr.betMode2(moneyBetting)
+                    if duplicateMode == False:
+                        changeMode = not changeMode
+                else:
+                    ctr.betMode1(moneyBetting)
+                duplicateMode = not duplicateMode
+                changeMode = not changeMode
+                isBet = False
 
     def switcher(self,x):
         return {
@@ -390,12 +424,13 @@ class GUI:
             1:self.action_Mode2(),
             2:self.action_Mode3(),
             3:self.action_Mode4(),
-            4:self.action_Mode5()
+            4:self.action_Mode5(),
+            5:self.action_Mode6()
         }.get(x,0)
 
     def countdown_action(self,count): #New thread for action in game
         self.switcher(self.var.get())
-        print(self.var.get())
+        #print(self.var.get())
         if count > 0 and int(self.vms.get()) > moneyInGame:
             if ISRUN == True:
                 root.after(1000, self.countdown_action, count-1)
